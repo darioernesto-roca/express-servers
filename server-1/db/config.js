@@ -1,26 +1,31 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-const user = process.env.DB_USER;
-const host = process.env.DB_HOST;
-const database = process.env.DB_DATABASE;
-const password = process.env.DB_PASSWORD;
-const port = process.env.DB_PORT;
-
 const pool = new Pool({
-    user: user,
-    host: host,
-    database: database,
-    password: password,
-    port: port,
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
 });
 
-pool.connect((err, client, release) => {
-    if (err) {
-        return console.error('Error acquiring client', err.stack);
+/**
+ * Executes a database query with parameters.
+ * @param {string} text - SQL query string
+ * @param {Array} [params] - Query parameters
+ * @returns {Promise} Query result
+ */
+const query = async (text, params) => {
+    const client = await pool.connect();
+    try {
+        const result = await client.query(text, params);
+        return result;
+    } catch (err) {
+        console.error('Database query error:', err.stack);
+        throw err;
+    } finally {
+        client.release();
     }
-    console.log('Connected to the database');
-    release();
-});
+};
 
-module.exports = pool;
+module.exports = { pool, query };
