@@ -7,6 +7,8 @@ const cors = require('cors');
 const routes = require('./routes');
 const pool = require('./db/config');
 const morgan = require('morgan');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -16,6 +18,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use(morgan('dev'));
+
+app.use(helmet());
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+});
+
+app.use(limiter);
 
 app.use('/', routes);
 
