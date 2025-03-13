@@ -41,13 +41,13 @@ app.use('/api/v1', routesV1);
 app.use('/api/v2', routesV2);
 
 // Database connection
-pool.connect((err, client, release) => {
-    if (err) {
-        return console.error('Error acquiring client', err.stack);
-    }
-    console.log('Connected to the database');
-    release();
-});
+// pool.connect((err, client, release) => {
+//     if (err) {
+//         return console.error('Error acquiring client', err.stack);
+//     }
+//     console.log('Connected to the database');
+//     release();
+// });
 
 // Start server
 app.listen(port, () => {
