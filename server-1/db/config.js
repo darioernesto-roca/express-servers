@@ -1,5 +1,10 @@
-const { Pool } = require('pg');
+const { Pool } = require("pg");
 require("dotenv").config();
+
+// Create a new pool with the connection details
+// from the .env file. The `ssl` option is required
+// I'm using Neon https://console.neon.tech/ to host my database
+// so I need to set `rejectUnauthorized` to `false`.
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -7,6 +12,7 @@ const pool = new Pool({
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  ssl: { rejectUnauthorized: false }, // ✅ Required for Neon
 });
 
 /**
@@ -15,16 +21,13 @@ const pool = new Pool({
  * @param {Array} [params] - Query parameters
  * @returns {Promise} Query result
  */
-const query = async (text, params) => {
-  const client = await pool.connect();
+const query = async (text, params = []) => {
   try {
-    const result = await client.query(text, params);
+    const result = await pool.query(text, params); // ✅ No need to call `pool.connect()`
     return result;
   } catch (err) {
-    console.error("Database query error:", err.stack);
+    console.error("❌ Database query error:", err.stack);
     throw err;
-  } finally {
-    client.release();
   }
 };
 
